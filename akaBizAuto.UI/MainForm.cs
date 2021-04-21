@@ -41,11 +41,19 @@ namespace akaBizAuto.UI
             accListFlp.Controls.Clear();
             foreach (var acc in accFbs)
             {
+                if (_accFbService.IsLoggedIn(acc))
+                {
+                    acc.LoginStatus = "Đã đăng nhập";
+                }
+                else
+                {
+                    acc.LoginStatus = "Chưa đăng nhập";
+                }
                 LinkLabel link = new LinkLabel();
                 link.Width = accListFlp.Width;
                 link.Links.Add(0, 0, acc);
                 link.Click += LinkLogin_Click;
-                link.Text = acc.Username + " (" + (acc.LoginStatus == 1 ? "Đã đăng nhập" : "Chưa đăng nhập") + ")";
+                link.Text = $"{acc.Username} ({acc.LoginStatus})";
                 accListFlp.Controls.Add(link);
             }
         }    
@@ -57,10 +65,9 @@ namespace akaBizAuto.UI
                 LinkLabel linkLabel = sender as LinkLabel;
                 AccountFacebook acc = linkLabel.Links[0].LinkData as AccountFacebook;
 
-                if (_accFbService.Login(acc) == 1)
+                if (_accFbService.OpenFacebook(acc))
                 {
-                    acc.LoginStatus = 1;
-                    LoadStatusAccount();
+                    
                 }
             }
             catch (Exception ex)

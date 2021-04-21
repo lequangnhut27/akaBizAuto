@@ -7,8 +7,9 @@ namespace akaBizAuto.Service.Interfaces
 {
     public interface IAccountFacebookService
     {
-        int Login(AccountFacebook acc);
+        bool IsLoggedIn(AccountFacebook acc);
         int Logout(AccountFacebook acc);
+        bool OpenFacebook(AccountFacebook acc);
         List<AccountFacebook> GetAll();
     }
 }
