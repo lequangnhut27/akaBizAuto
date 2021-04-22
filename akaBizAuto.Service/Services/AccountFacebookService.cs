@@ -1,6 +1,6 @@
-﻿using akaBizAuto.Data.Models;
-using akaBizAuto.Service.Constants;
+﻿using akaBizAuto.Service.Constants;
 using akaBizAuto.Service.Interfaces;
+using akaBizAuto.Service.Models;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
@@ -12,69 +12,62 @@ namespace akaBizAuto.Service.Services
 {
     public class AccountFacebookService : IAccountFacebookService
     {
-        public List<AccountFacebook> GetAll()
-        {
-            List<AccountFacebook> accs = new List<AccountFacebook>();
-            var acc1 = new AccountFacebook()
-            {
-                Username = "kjuen11@gmail.com",
-                Password = "elkjuen@11",
-            };
-            var acc2 = new AccountFacebook()
-            {
-                Username = "kjuen12@gmail.com",
-                Password = "elkjuen@12",
-            };
-            var acc3 = new AccountFacebook()
-            {
-                Username = "kjuenfb@gmail.com",
-                Password = "elkjuen@13",
-            };
-            accs.Add(acc1);
-            accs.Add(acc2);
-            accs.Add(acc3);
-            return accs;
-        }
 
-        
-
-        public bool Login(IWebDriver driver, AccountFacebook acc)
+        public bool Login(AccountFacebookView acc, IWebDriver driver = null, bool isShowChrome = false)
         {
             try
             {
-                driver.FindElement(By.CssSelector(SelectorLogin.inputUsername)).SendKeys(acc.Username);
-                driver.FindElement(By.CssSelector(SelectorLogin.inputPass)).SendKeys(acc.Password);
-                driver.FindElement(By.CssSelector(SelectorLogin.buttonLogin)).Click();
+                if (driver is null)
+                {
+                    ChromeOptions options = new ChromeOptions();
+                    options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
+                    if (!isShowChrome)
+                        options.AddArgument("--headless");
 
-                if (driver.FindElements(By.CssSelector(SelectorLogin.inputUsername)).Count > 0)
+                    driver = new ChromeDriver(options);
+
+                    driver.Url = UrlConstant.FbLogin;
+                    driver.Navigate();
+                    driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+                }
+                driver.FindElement(By.CssSelector(SelectorConstant.inputUsername)).SendKeys(acc.Username);
+                driver.FindElement(By.CssSelector(SelectorConstant.inputPass)).SendKeys(acc.Password);
+                driver.FindElement(By.CssSelector(SelectorConstant.buttonLogin)).Click();
+                if (driver.FindElements(By.CssSelector(SelectorConstant.inputUsername)).Count > 0)
+                {
+                    driver.Quit();
                     return false;
-
+                }
             }
             catch
             {
+                driver.Quit();
                 return false;
             }
+            driver.Quit();
             return true;
         }
 
-        public bool IsLoggedIn(AccountFacebook acc)
+        public bool IsLoggedIn(AccountFacebookView acc, bool isShowChrome = false)
         {
             try
             {
 
                 ChromeOptions options = new ChromeOptions();
-                options.AddArgument($@"user-data-dir=C:\Users\Nitrogen\AppData\Local\Google\Chrome\User Data\{acc.Username}");
+                options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
+                if (!isShowChrome)
+                    options.AddArgument("--headless");
 
                 IWebDriver driver = new ChromeDriver(options);
 
-                driver.Url = "https://fb.com";
+                driver.Url = UrlConstant.FbLogin;
                 driver.Navigate();
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
 
-                if (driver.FindElements(By.CssSelector(SelectorLogin.inputUsername)).Count > 0)
+                if (driver.FindElements(By.CssSelector(SelectorConstant.inputUsername)).Count > 0)
                 {
-                    if (!Login(driver, acc))
+                    if (!Login(acc, driver))
                     {
-                        driver.Quit();
                         return false;
                     }
                 }
@@ -88,15 +81,15 @@ namespace akaBizAuto.Service.Services
             }
         }
 
-        public bool OpenFacebook(AccountFacebook acc)
+        public bool OpenFacebook(AccountFacebookView acc)
         {
             try
             {
                 ChromeOptions options = new ChromeOptions();
-                options.AddArgument($@"user-data-dir=C:\Users\Nitrogen\AppData\Local\Google\Chrome\User Data\{acc.Username}");
+                options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
 
                 IWebDriver driver = new ChromeDriver(options);
-                driver.Url = "https://fb.com";
+                driver.Url = UrlConstant.FbLogin;
                 driver.Navigate();
                 return true;
             }
@@ -106,9 +99,50 @@ namespace akaBizAuto.Service.Services
             }
         }
 
-        public int Logout(AccountFacebook acc)
+        public int Logout(AccountFacebookView acc)
         {
             throw new NotImplementedException();
+        }
+
+        public int AddFriend(AccountFacebookView acc, string uid, bool isShowChrome = false)
+        {
+            int result = 0;
+            try
+            {
+                ChromeOptions options = new ChromeOptions();
+                options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
+                
+                IWebDriver driver = new ChromeDriver(options);
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+                driver.Url = $"{UrlConstant.FbLogin}/profile.php?id={uid}";
+                if (!isShowChrome)
+                    options.AddArgument("--headless");
+                driver.Navigate();
+
+                var eCancelRequestBtn = driver.FindElements(By.CssSelector(SelectorConstant.CancelRequestFriendBtn));
+
+                if (eCancelRequestBtn.Count == 0)
+                {
+                    var eAddFriendBtn = driver.FindElements(By.CssSelector(SelectorConstant.AddFriendBtn));
+                    if (eAddFriendBtn.Count > 0)
+                    {
+                        eAddFriendBtn[0].Click();
+                        result = 2;
+                    }
+                    else
+                        result = 10;
+                        
+                }
+                else
+                    result = 2;
+                driver.Quit();
+            }
+            catch
+            {
+                 result = 3;
+            }
+            return result;
+
         }
     }
 }

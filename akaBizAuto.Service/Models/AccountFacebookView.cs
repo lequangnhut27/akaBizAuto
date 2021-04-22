@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace akaBizAuto.Data.Models
+namespace akaBizAuto.Service.Models
 {
-    public class AccountFacebook
+    public class AccountFacebookView
     {
         public string AppId { get; set; }
         public string ShopId { get; set; }
@@ -13,7 +13,7 @@ namespace akaBizAuto.Data.Models
         public string Username { get; set; }
         public string Password { get; set; }
         public string LoginStatus { get; set; }
-        public AccountFacebook()
+        public AccountFacebookView()
         {
             ShopType = "facebook";
         }

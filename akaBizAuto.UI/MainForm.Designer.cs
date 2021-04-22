@@ -103,6 +103,7 @@ namespace akaBizAuto.UI
             this.addFriendListFbBtn.TabIndex = 5;
             this.addFriendListFbBtn.Text = "Danh sách kết bạn Facebook";
             this.addFriendListFbBtn.UseVisualStyleBackColor = false;
+            this.addFriendListFbBtn.Click += new System.EventHandler(this.addFriendListFbBtn_Click);
             // 
             // addAccFbBtn
             // 

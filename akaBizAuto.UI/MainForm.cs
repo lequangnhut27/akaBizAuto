@@ -1,5 +1,8 @@
-﻿using akaBizAuto.Data.Models;
+﻿using akaBizAuto.Data.Constants;
+using akaBizAuto.Service.Data;
 using akaBizAuto.Service.Interfaces;
+using akaBizAuto.Service.Models;
+using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,12 +18,16 @@ namespace akaBizAuto.UI
     public partial class MainForm : Form
     {
         private readonly IAccountFacebookService _accFbService;
-        private List<AccountFacebook> accFbs = null;
+        private List<AccountFacebookView> _accFbs = null;
+        private InteractFacebookView _interact = null;
+        private bool _isShowChrome;
         public MainForm(IAccountFacebookService accFbService)
         {
             InitializeComponent();
             _accFbService = accFbService;
-            accFbs = _accFbService.GetAll();
+            _accFbs = AccountFacebookData.GetAccFbs();
+            _interact = AccountFacebookData.GetInteract();
+            _isShowChrome = true;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -28,6 +35,7 @@ namespace akaBizAuto.UI
             try
             {
                 LoadStatusAccount();
+                //_accFbService.OpenFacebook(_accFbs[2]);
             }
             catch (Exception ex)
             {
@@ -39,15 +47,15 @@ namespace akaBizAuto.UI
         private void LoadStatusAccount()
         {
             accListFlp.Controls.Clear();
-            foreach (var acc in accFbs)
+            foreach (var acc in _accFbs)
             {
-                if (_accFbService.IsLoggedIn(acc))
+                if (_accFbService.IsLoggedIn(acc, _isShowChrome))
                 {
-                    acc.LoginStatus = "Đã đăng nhập";
+                    acc.LoginStatus = Constants.LoggedIn;
                 }
                 else
                 {
-                    acc.LoginStatus = "Chưa đăng nhập";
+                    acc.LoginStatus = Constants.NotLogin;
                 }
                 LinkLabel link = new LinkLabel();
                 link.Width = accListFlp.Width;
@@ -56,23 +64,40 @@ namespace akaBizAuto.UI
                 link.Text = $"{acc.Username} ({acc.LoginStatus})";
                 accListFlp.Controls.Add(link);
             }
-        }    
+        }
 
         private void LinkLogin_Click(object sender, EventArgs e)
         {
             try
             {
                 LinkLabel linkLabel = sender as LinkLabel;
-                AccountFacebook acc = linkLabel.Links[0].LinkData as AccountFacebook;
+                AccountFacebookView acc = linkLabel.Links[0].LinkData as AccountFacebookView;
 
-                if (_accFbService.OpenFacebook(acc))
+                if (acc.LoginStatus == Constants.NotLogin)
                 {
-                    
+                    LoginFbForm loginFbForm = new LoginFbForm(_accFbService, acc);
+                    var result = loginFbForm.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        linkLabel.Text = $"{acc.Username} ({acc.LoginStatus})";
+                    }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void addFriendListFbBtn_Click(object sender, EventArgs e)
+        {
+            if (_interact.Action == "addfriend" && _interact.Status == "waiting")
+            {
+                foreach (var customer in _interact.Detail)
+                {
+                    var result = _accFbService.AddFriend(_accFbs[2], customer.Uid, _isShowChrome);
+                    customer.Status = result;
+                }
             }
         }
     }
