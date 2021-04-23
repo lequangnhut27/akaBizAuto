@@ -30,10 +30,10 @@ namespace akaBizAuto.Service.Services
                     driver.Navigate();
                     driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
                 }
-                driver.FindElement(By.CssSelector(SelectorConstant.inputUsername)).SendKeys(acc.Username);
-                driver.FindElement(By.CssSelector(SelectorConstant.inputPass)).SendKeys(acc.Password);
-                driver.FindElement(By.CssSelector(SelectorConstant.buttonLogin)).Click();
-                if (driver.FindElements(By.CssSelector(SelectorConstant.inputUsername)).Count > 0)
+                driver.FindElement(By.CssSelector(SelectorConstant.UsernameInp)).SendKeys(acc.Username);
+                driver.FindElement(By.CssSelector(SelectorConstant.PassInp)).SendKeys(acc.Password);
+                driver.FindElement(By.CssSelector(SelectorConstant.LoginBtn)).Click();
+                if (driver.FindElements(By.CssSelector(SelectorConstant.UsernameInp)).Count > 0)
                 {
                     driver.Quit();
                     return false;
@@ -64,7 +64,7 @@ namespace akaBizAuto.Service.Services
                 driver.Navigate();
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
 
-                if (driver.FindElements(By.CssSelector(SelectorConstant.inputUsername)).Count > 0)
+                if (driver.FindElements(By.CssSelector(SelectorConstant.UsernameInp)).Count > 0)
                 {
                     if (!Login(acc, driver))
                     {
@@ -143,6 +143,37 @@ namespace akaBizAuto.Service.Services
             }
             return result;
 
+        }
+
+        public int SendMessage(AccountFacebookView acc, string uid, string content, string image, bool isShowChrome = false)
+        {
+            try
+            {
+                ChromeOptions options = new ChromeOptions();
+                options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
+
+                IWebDriver driver = new ChromeDriver(options);
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+                driver.Url = $"{UrlConstant.FbLogin}/messages/t/{uid}";
+                driver.Navigate();
+
+                var eMessageInp = driver.FindElements(By.CssSelector(SelectorConstant.MessageInp));
+                if (eMessageInp.Count > 0)
+                {
+                    eMessageInp[0].SendKeys(content);
+                    driver.FindElement(By.XPath(SelectorConstant.ImageInp)).SendKeys(image);
+                    driver.FindElement(By.CssSelector(SelectorConstant.SendMessageBtn)).Click();
+                    //System.Threading.Thread.Sleep(2000);
+                    driver.Quit();
+                    return 2;
+                }
+                driver.Quit();
+                return 10;
+            }   
+            catch (Exception ex)
+            {
+                return 3;
+            }
         }
     }
 }

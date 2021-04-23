@@ -1,4 +1,4 @@
-﻿using akaBizAuto.Data.Constants;
+﻿using akaBizAuto.Service.Constants;
 using akaBizAuto.Service.Interfaces;
 using akaBizAuto.Service.Models;
 using System;
@@ -29,7 +29,7 @@ namespace akaBizAuto.UI
             _acc.Password = passTxt.Text;
             if (_accFbService.Login(_acc))
             {
-                _acc.LoginStatus = Constants.LoggedIn;
+                _acc.LoginStatus = VarConstant.Status.Loggedin;
                 DialogResult = DialogResult.OK;
                 Close();
             }

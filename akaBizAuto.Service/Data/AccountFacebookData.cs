@@ -1,4 +1,5 @@
-﻿using akaBizAuto.Service.Models;
+﻿using akaBizAuto.Service.Constants;
+using akaBizAuto.Service.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,17 +32,31 @@ namespace akaBizAuto.Service.Data
             return accs;
         }
 
-        public static InteractFacebookView GetInteract()
+        public static List<InteractFacebookView> GetInteracts()
         {
-            InteractFacebookView interact = new InteractFacebookView()
+            List<InteractFacebookView> interacts = new List<InteractFacebookView>();
+            InteractFacebookView interact1 = new InteractFacebookView()
             {
-                Status = "waiting",
-                Action = "addfriend",
+                Status = VarConstant.Status.Waiting,
+                Action = VarConstant.Action.AddFriend,
                 Detail = GetCustomers(),
+                Schedule = DateTime.Now.Date,
+                TimeDelay = 0
             };
 
-
-            return interact;
+            InteractFacebookView interact2 = new InteractFacebookView()
+            {
+                Status = VarConstant.Status.Waiting,
+                Action = VarConstant.Action.SendMessage,
+                Content = "Hello",
+                Image = @"C:\Users\Nitrogen\Pictures\Screenshots\Screenshot (1).png",
+                Detail = GetCustomers(),
+                Schedule = DateTime.Now.Date,
+                TimeDelay = 0
+            };
+            interacts.Add(interact1);
+            interacts.Add(interact2);
+            return interacts;
         }
 
         public static List<CustomerView> GetCustomers()

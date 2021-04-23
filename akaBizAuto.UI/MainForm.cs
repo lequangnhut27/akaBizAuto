@@ -1,4 +1,4 @@
-﻿using akaBizAuto.Data.Constants;
+﻿using akaBizAuto.Service.Constants;
 using akaBizAuto.Service.Data;
 using akaBizAuto.Service.Interfaces;
 using akaBizAuto.Service.Models;
@@ -10,6 +10,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,14 +20,14 @@ namespace akaBizAuto.UI
     {
         private readonly IAccountFacebookService _accFbService;
         private List<AccountFacebookView> _accFbs = null;
-        private InteractFacebookView _interact = null;
+        private List<InteractFacebookView> _interact = null;
         private bool _isShowChrome;
         public MainForm(IAccountFacebookService accFbService)
         {
             InitializeComponent();
             _accFbService = accFbService;
             _accFbs = AccountFacebookData.GetAccFbs();
-            _interact = AccountFacebookData.GetInteract();
+            _interact = AccountFacebookData.GetInteracts();
             _isShowChrome = true;
         }
 
@@ -51,11 +52,11 @@ namespace akaBizAuto.UI
             {
                 if (_accFbService.IsLoggedIn(acc, _isShowChrome))
                 {
-                    acc.LoginStatus = Constants.LoggedIn;
+                    acc.LoginStatus = VarConstant.Status.Loggedin;
                 }
                 else
                 {
-                    acc.LoginStatus = Constants.NotLogin;
+                    acc.LoginStatus = VarConstant.Status.NotLogin;
                 }
                 LinkLabel link = new LinkLabel();
                 link.Width = accListFlp.Width;
@@ -73,7 +74,7 @@ namespace akaBizAuto.UI
                 LinkLabel linkLabel = sender as LinkLabel;
                 AccountFacebookView acc = linkLabel.Links[0].LinkData as AccountFacebookView;
 
-                if (acc.LoginStatus == Constants.NotLogin)
+                if (acc.LoginStatus == VarConstant.Status.NotLogin)
                 {
                     LoginFbForm loginFbForm = new LoginFbForm(_accFbService, acc);
                     var result = loginFbForm.ShowDialog();
@@ -91,12 +92,38 @@ namespace akaBizAuto.UI
 
         private void addFriendListFbBtn_Click(object sender, EventArgs e)
         {
-            if (_interact.Action == "addfriend" && _interact.Status == "waiting")
+            foreach (var interact in _interact)
             {
-                foreach (var customer in _interact.Detail)
+                if (interact.Action == VarConstant.Action.AddFriend &&
+                    interact.Status == VarConstant.Status.Waiting &&
+                    interact.Schedule.Date == DateTime.Now.Date)
                 {
-                    var result = _accFbService.AddFriend(_accFbs[2], customer.Uid, _isShowChrome);
-                    customer.Status = result;
+                    foreach (var customer in interact.Detail)
+                    {
+                        var result = _accFbService.AddFriend(_accFbs[2], customer.Uid, _isShowChrome);
+                        customer.Status = result;
+                        Thread.Sleep(interact.TimeDelay);
+                    }
+                    interact.Status = VarConstant.Status.Finish;
+                }
+            }
+        }
+
+        private void sendMessageBtn_Click(object sender, EventArgs e)
+        {
+            foreach (var interact in _interact)
+            {
+                if (interact.Action == VarConstant.Action.SendMessage &&
+                    interact.Status == VarConstant.Status.Waiting &&
+                    interact.Schedule.Date == DateTime.Now.Date)
+                {
+                    foreach (var customer in interact.Detail)
+                    {
+                        var result = _accFbService.SendMessage(_accFbs[2], customer.Uid, interact.Content, interact.Image, _isShowChrome);
+                        customer.Status = result;
+                        Thread.Sleep(interact.TimeDelay);
+                    }
+                    interact.Status = VarConstant.Status.Finish;
                 }
             }
         }

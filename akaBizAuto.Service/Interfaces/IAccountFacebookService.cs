@@ -13,5 +13,6 @@ namespace akaBizAuto.Service.Interfaces
         bool OpenFacebook(AccountFacebookView acc);
         bool Login(AccountFacebookView acc, IWebDriver driver = null, bool isShowChrome = false);
         int AddFriend(AccountFacebookView acc, string uid, bool isShowChrome = false);
+        int SendMessage(AccountFacebookView acc, string uid, string content, string image, bool isShowChrome = false);
     }
 }

@@ -30,7 +30,7 @@ namespace akaBizAuto.UI
         private void InitializeComponent()
         {
             this.menu = new System.Windows.Forms.GroupBox();
-            this.commentProfileBtn = new System.Windows.Forms.Button();
+            this.sendMessageBtn = new System.Windows.Forms.Button();
             this.addFriendListFbBtn = new System.Windows.Forms.Button();
             this.addAccFbBtn = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -60,7 +60,7 @@ namespace akaBizAuto.UI
             // 
             // menu
             // 
-            this.menu.Controls.Add(this.commentProfileBtn);
+            this.menu.Controls.Add(this.sendMessageBtn);
             this.menu.Controls.Add(this.addFriendListFbBtn);
             this.menu.Controls.Add(this.addAccFbBtn);
             this.menu.Controls.Add(this.label2);
@@ -76,19 +76,20 @@ namespace akaBizAuto.UI
             this.menu.TabStop = false;
             this.menu.Text = "Menu";
             // 
-            // commentProfileBtn
+            // sendMessageBtn
             // 
-            this.commentProfileBtn.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.commentProfileBtn.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.commentProfileBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.commentProfileBtn.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.commentProfileBtn.ForeColor = System.Drawing.Color.White;
-            this.commentProfileBtn.Location = new System.Drawing.Point(1096, 26);
-            this.commentProfileBtn.Name = "commentProfileBtn";
-            this.commentProfileBtn.Size = new System.Drawing.Size(162, 70);
-            this.commentProfileBtn.TabIndex = 6;
-            this.commentProfileBtn.Text = "Comment vào Profile";
-            this.commentProfileBtn.UseVisualStyleBackColor = false;
+            this.sendMessageBtn.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.sendMessageBtn.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.sendMessageBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.sendMessageBtn.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.sendMessageBtn.ForeColor = System.Drawing.Color.White;
+            this.sendMessageBtn.Location = new System.Drawing.Point(1096, 26);
+            this.sendMessageBtn.Name = "sendMessageBtn";
+            this.sendMessageBtn.Size = new System.Drawing.Size(162, 70);
+            this.sendMessageBtn.TabIndex = 6;
+            this.sendMessageBtn.Text = "Gửi tin nhắn";
+            this.sendMessageBtn.UseVisualStyleBackColor = false;
+            this.sendMessageBtn.Click += new System.EventHandler(this.sendMessageBtn_Click);
             // 
             // addFriendListFbBtn
             // 
@@ -339,7 +340,7 @@ namespace akaBizAuto.UI
         private System.Windows.Forms.Button sendingListShopeeBtn;
         private System.Windows.Forms.Button addAccZaloBtn;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button commentProfileBtn;
+        private System.Windows.Forms.Button sendMessageBtn;
         private System.Windows.Forms.Button addFriendListFbBtn;
         private System.Windows.Forms.Button addAccFbBtn;
         private System.Windows.Forms.Label label2;
