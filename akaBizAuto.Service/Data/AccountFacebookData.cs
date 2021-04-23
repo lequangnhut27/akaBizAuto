@@ -13,16 +13,19 @@ namespace akaBizAuto.Service.Data
             List<AccountFacebookView> accs = new List<AccountFacebookView>();
             var acc1 = new AccountFacebookView()
             {
+                ShopId = 1,
                 Username = "kjuen11@gmail.com",
                 Password = "elkjuen@11",
             };
             var acc2 = new AccountFacebookView()
             {
+                ShopId = 2,
                 Username = "kjuen12@gmail.com",
                 Password = "elkjuen@12",
             };
             var acc3 = new AccountFacebookView()
             {
+                ShopId = 3,
                 Username = "01678318757",
                 Password = "lequangnhut",
             };
@@ -37,6 +40,7 @@ namespace akaBizAuto.Service.Data
             List<InteractFacebookView> interacts = new List<InteractFacebookView>();
             InteractFacebookView interact1 = new InteractFacebookView()
             {
+                ShopId = 3,
                 Status = VarConstant.Status.Waiting,
                 Action = VarConstant.Action.AddFriend,
                 Detail = GetCustomers(),
@@ -46,13 +50,14 @@ namespace akaBizAuto.Service.Data
 
             InteractFacebookView interact2 = new InteractFacebookView()
             {
+                ShopId = 3,
                 Status = VarConstant.Status.Waiting,
                 Action = VarConstant.Action.SendMessage,
                 Content = "Hello",
                 Image = @"C:\Users\Nitrogen\Pictures\Screenshots\Screenshot (1).png",
                 Detail = GetCustomers(),
                 Schedule = DateTime.Now.Date,
-                TimeDelay = 0
+                TimeDelay = 3000
             };
             interacts.Add(interact1);
             interacts.Add(interact2);

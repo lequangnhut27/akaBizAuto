@@ -7,7 +7,7 @@ namespace akaBizAuto.Service.Models
     public class InteractFacebookView
     {
         public string name { get; set; }
-        public int Shopid { get; set; }       //int - - select, tài khoản thực hiện, AccountFacebook Id
+        public int ShopId { get; set; }       //int - - select, tài khoản thực hiện, AccountFacebook Id
         public DateTime Schedule { get; set; }     //Datetime, thời gian thực hiện
         public string Type { get; set; }     //string - select, profile/page/group
         public string Action { get; set; }       //string - select, addfriend/comment/like/heart/sendmessage

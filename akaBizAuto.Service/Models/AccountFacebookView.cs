@@ -6,8 +6,8 @@ namespace akaBizAuto.Service.Models
 {
     public class AccountFacebookView
     {
-        public string AppId { get; set; }
-        public string ShopId { get; set; }
+        public int Id { get; set; }
+        public int ShopId { get; set; }
         public string ShopName { get; set; }
         public string ShopType { get; set; }
         public string Username { get; set; }

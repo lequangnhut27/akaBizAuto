@@ -13,6 +13,8 @@ namespace akaBizAuto.Service.Services
     public class AccountFacebookService : IAccountFacebookService
     {
 
+        private IWebDriver _driver = null;
+
         public bool Login(AccountFacebookView acc, IWebDriver driver = null, bool isShowChrome = false)
         {
             try
@@ -149,25 +151,25 @@ namespace akaBizAuto.Service.Services
         {
             try
             {
-                ChromeOptions options = new ChromeOptions();
-                options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
+                if (_driver is null)
+                {
+                    ChromeOptions options = new ChromeOptions();
+                    options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
 
-                IWebDriver driver = new ChromeDriver(options);
-                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-                driver.Url = $"{UrlConstant.FbLogin}/messages/t/{uid}";
-                driver.Navigate();
+                    _driver = new ChromeDriver(options);
+                    _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+                }
+                _driver.Url = $"{UrlConstant.FbLogin}/messages/t/{uid}";
+                _driver.Navigate();
 
-                var eMessageInp = driver.FindElements(By.CssSelector(SelectorConstant.MessageInp));
+                var eMessageInp = _driver.FindElements(By.CssSelector(SelectorConstant.MessageInp));
                 if (eMessageInp.Count > 0)
                 {
                     eMessageInp[0].SendKeys(content);
-                    driver.FindElement(By.XPath(SelectorConstant.ImageInp)).SendKeys(image);
-                    driver.FindElement(By.CssSelector(SelectorConstant.SendMessageBtn)).Click();
-                    //System.Threading.Thread.Sleep(2000);
-                    driver.Quit();
+                    _driver.FindElement(By.XPath(SelectorConstant.ImageInp)).SendKeys(image);
+                    _driver.FindElement(By.CssSelector(SelectorConstant.SendMessageBtn)).Click();
                     return 2;
                 }
-                driver.Quit();
                 return 10;
             }   
             catch (Exception ex)
