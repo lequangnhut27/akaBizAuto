@@ -27,15 +27,16 @@ namespace akaBizAuto.UI
         {
             _acc.Username = usernameTxt.Text;
             _acc.Password = passTxt.Text;
-            if (_accFbService.Login(_acc))
+
+            _accFbService.UpdateLoginStatus(_acc);
+            if (_acc.LoginStatus == LoginStatusConstant.NOTLOGIN)
             {
-                _acc.LoginStatus = VarConstant.Status.Loggedin;
-                DialogResult = DialogResult.OK;
-                Close();
+                MessageBox.Show("Sai tên đăng nhập hoặc mật khẩu!");              
             }
             else
             {
-                MessageBox.Show("Sai tên đăng nhập hoặc mật khẩu!");
+                DialogResult = DialogResult.OK;
+                Close();
             }
         }
 

@@ -13,19 +13,19 @@ namespace akaBizAuto.Service.Data
             List<AccountFacebookView> accs = new List<AccountFacebookView>();
             var acc1 = new AccountFacebookView()
             {
-                ShopId = 1,
+                ShopId = 1111,
                 Username = "kjuen11@gmail.com",
                 Password = "elkjuen@11",
             };
             var acc2 = new AccountFacebookView()
             {
-                ShopId = 2,
+                ShopId = 2222,
                 Username = "kjuen12@gmail.com",
-                Password = "elkjuen@12",
+                Password = "elkjuen@1222222222",
             };
             var acc3 = new AccountFacebookView()
             {
-                ShopId = 3,
+                ShopId = 3333,
                 Username = "01678318757",
                 Password = "lequangnhut",
             };
@@ -40,27 +40,42 @@ namespace akaBizAuto.Service.Data
             List<InteractFacebookView> interacts = new List<InteractFacebookView>();
             InteractFacebookView interact1 = new InteractFacebookView()
             {
-                ShopId = 3,
-                Status = VarConstant.Status.Waiting,
-                Action = VarConstant.Action.AddFriend,
+                ShopId = 3333,
+                Status = ProcessStatusConstant.WAITING,
+                Action = ActionConstant.ADDFRIEND,
                 Detail = GetCustomers(),
                 Schedule = DateTime.Now.Date,
-                TimeDelay = 0
+                TimeDelay = 3000,
             };
 
             InteractFacebookView interact2 = new InteractFacebookView()
             {
-                ShopId = 3,
-                Status = VarConstant.Status.Waiting,
-                Action = VarConstant.Action.SendMessage,
+                ShopId = 3333,
+                Status = ProcessStatusConstant.WAITING,
+                Action = ActionConstant.SENDMESSAGE,
                 Content = "Hello",
                 Image = @"C:\Users\Nitrogen\Pictures\Screenshots\Screenshot (1).png",
                 Detail = GetCustomers(),
                 Schedule = DateTime.Now.Date,
                 TimeDelay = 3000
             };
+
+            InteractFacebookView interact3 = new InteractFacebookView()
+            {
+                ShopId = 3333,
+                Status = ProcessStatusConstant.WAITING,
+                Action = ActionConstant.COMMENT,
+                Content = "Hello",
+                Image = @"C:\Users\Nitrogen\Pictures\Screenshots\Screenshot (1).png",
+                Detail = GetCustomers(),
+                Schedule = DateTime.Now.Date,
+                TimeDelay = 3000,
+                CountPost = 2
+            };
             interacts.Add(interact1);
             interacts.Add(interact2);
+            interacts.Add(interact3);
+
             return interacts;
         }
 
@@ -70,33 +85,33 @@ namespace akaBizAuto.Service.Data
             CustomerView cus1 = new CustomerView()
             {
                 Uid = "100006488944710",
-                Status = 0
+                Status = 1
             };
             CustomerView cus2 = new CustomerView()
             {
                 Uid = "100027318624242",
-                Status = 0
+                Status = 1
             };
             CustomerView cus3 = new CustomerView()
             {
                 Uid = "100009837120518",
-                Status = 0
+                Status = 1
             };
 
             CustomerView cus4 = new CustomerView()
             {
-                Uid = "100054517342715",
-                Status = 0
+                Uid = "100019026620756",
+                Status = 1
             };
             CustomerView cus5 = new CustomerView()
             {
-                Uid = "100019026620756",
-                Status = 0
+                Uid = "100054517342715",
+                Status = 1
             };
             customers.Add(cus1);
             customers.Add(cus2);
-            customers.Add(cus3);
-            customers.Add(cus4);
+            //customers.Add(cus3);
+            //customers.Add(cus4);
             customers.Add(cus5);
 
             return customers;

@@ -51,6 +51,7 @@ namespace akaBizAuto.UI
             this.fromDateDtp = new System.Windows.Forms.DateTimePicker();
             this.fromDateLbl = new System.Windows.Forms.Label();
             this.tab3 = new System.Windows.Forms.TabPage();
+            this.commentBtn = new System.Windows.Forms.Button();
             this.menu.SuspendLayout();
             this.accListGrb.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -60,6 +61,7 @@ namespace akaBizAuto.UI
             // 
             // menu
             // 
+            this.menu.Controls.Add(this.commentBtn);
             this.menu.Controls.Add(this.sendMessageBtn);
             this.menu.Controls.Add(this.addFriendListFbBtn);
             this.menu.Controls.Add(this.addAccFbBtn);
@@ -71,7 +73,7 @@ namespace akaBizAuto.UI
             this.menu.Controls.Add(this.sendingListShopeeBtn);
             this.menu.Location = new System.Drawing.Point(10, 10);
             this.menu.Name = "menu";
-            this.menu.Size = new System.Drawing.Size(1282, 111);
+            this.menu.Size = new System.Drawing.Size(1442, 111);
             this.menu.TabIndex = 0;
             this.menu.TabStop = false;
             this.menu.Text = "Menu";
@@ -313,11 +315,26 @@ namespace akaBizAuto.UI
             this.tab3.Text = "Tab 3";
             this.tab3.UseVisualStyleBackColor = true;
             // 
+            // commentBtn
+            // 
+            this.commentBtn.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.commentBtn.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.commentBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.commentBtn.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.commentBtn.ForeColor = System.Drawing.Color.White;
+            this.commentBtn.Location = new System.Drawing.Point(1264, 26);
+            this.commentBtn.Name = "commentBtn";
+            this.commentBtn.Size = new System.Drawing.Size(162, 70);
+            this.commentBtn.TabIndex = 7;
+            this.commentBtn.Text = "Comment";
+            this.commentBtn.UseVisualStyleBackColor = false;
+            this.commentBtn.Click += new System.EventHandler(this.commentBtn_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1304, 714);
+            this.ClientSize = new System.Drawing.Size(1459, 714);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.accListGrb);
             this.Controls.Add(this.menu);
@@ -358,6 +375,7 @@ namespace akaBizAuto.UI
         private System.Windows.Forms.DateTimePicker toDateDtp;
         private System.Windows.Forms.Label toDateLbl;
         private System.Windows.Forms.FlowLayoutPanel accListFlp;
+        private System.Windows.Forms.Button commentBtn;
     }
 }
 

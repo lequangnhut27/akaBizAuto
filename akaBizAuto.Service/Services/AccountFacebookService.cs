@@ -1,4 +1,5 @@
-﻿using akaBizAuto.Service.Constants;
+﻿using akaBizAuto.Service.Common;
+using akaBizAuto.Service.Constants;
 using akaBizAuto.Service.Interfaces;
 using akaBizAuto.Service.Models;
 using OpenQA.Selenium;
@@ -7,92 +8,21 @@ using System;
 using System.Collections.Generic;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
 
 namespace akaBizAuto.Service.Services
 {
     public class AccountFacebookService : IAccountFacebookService
-    {
-
-        private IWebDriver _driver = null;
-
-        public bool Login(AccountFacebookView acc, IWebDriver driver = null, bool isShowChrome = false)
-        {
-            try
-            {
-                if (driver is null)
-                {
-                    ChromeOptions options = new ChromeOptions();
-                    options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
-                    if (!isShowChrome)
-                        options.AddArgument("--headless");
-
-                    driver = new ChromeDriver(options);
-
-                    driver.Url = UrlConstant.FbLogin;
-                    driver.Navigate();
-                    driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-                }
-                driver.FindElement(By.CssSelector(SelectorConstant.UsernameInp)).SendKeys(acc.Username);
-                driver.FindElement(By.CssSelector(SelectorConstant.PassInp)).SendKeys(acc.Password);
-                driver.FindElement(By.CssSelector(SelectorConstant.LoginBtn)).Click();
-                if (driver.FindElements(By.CssSelector(SelectorConstant.UsernameInp)).Count > 0)
-                {
-                    driver.Quit();
-                    return false;
-                }
-            }
-            catch
-            {
-                driver.Quit();
-                return false;
-            }
-            driver.Quit();
-            return true;
-        }
-
-        public bool IsLoggedIn(AccountFacebookView acc, bool isShowChrome = false)
-        {
-            try
-            {
-
-                ChromeOptions options = new ChromeOptions();
-                options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
-                if (!isShowChrome)
-                    options.AddArgument("--headless");
-
-                IWebDriver driver = new ChromeDriver(options);
-
-                driver.Url = UrlConstant.FbLogin;
-                driver.Navigate();
-                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-
-                if (driver.FindElements(By.CssSelector(SelectorConstant.UsernameInp)).Count > 0)
-                {
-                    if (!Login(acc, driver))
-                    {
-                        return false;
-                    }
-                }
-
-                driver.Quit();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
+    {        
 
         public bool OpenFacebook(AccountFacebookView acc)
         {
             try
             {
-                ChromeOptions options = new ChromeOptions();
-                options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
-
-                IWebDriver driver = new ChromeDriver(options);
-                driver.Url = UrlConstant.FbLogin;
-                driver.Navigate();
+                string userProfilePath = $@"{UrlConstant.ProfileChromePath}\{acc.Username}";
+                ChromeSelenium chrome = new ChromeSelenium(userProfilePath, VarConstant.IsShowBrowser);
+                // Go to fb
+                chrome.Navigate(UrlConstant.FbLogin);
                 return true;
             }
             catch
@@ -101,81 +31,102 @@ namespace akaBizAuto.Service.Services
             }
         }
 
-        public int Logout(AccountFacebookView acc)
+        public void UpdateLoginStatus(AccountFacebookView acc)
         {
-            throw new NotImplementedException();
+            string userProfilePath = $@"{UrlConstant.ProfileChromePath}\{acc.Username}";
+            ChromeSelenium chrome = new ChromeSelenium(userProfilePath, VarConstant.IsShowBrowser);
+            // Go to fb
+            chrome.Navigate(UrlConstant.FbLogin);
+            acc.LoginStatus = chrome.CheckLoginStatusFb();
+            // chưa đăng nhập thực hiện đăng nhập
+            if (acc.LoginStatus == LoginStatusConstant.NOTLOGIN)
+                acc.LoginStatus = chrome.LoginFb(acc.Username, acc.Password);
+            
+            chrome.Quit();
         }
 
-        public int AddFriend(AccountFacebookView acc, string uid, bool isShowChrome = false)
+        public void AddFriends(InteractFacebookView interact, string username)
         {
-            int result = 0;
-            try
+            if (interact == null || interact.Action != ActionConstant.ADDFRIEND ||
+                interact.Status == ProcessStatusConstant.FINISH || interact.Status == ProcessStatusConstant.STOP ||
+                interact.Schedule.Date != DateTime.Now.Date)
+                return;
+
+            interact.Status = ProcessStatusConstant.PROCESSING;
+
+            string userProfilePath = $@"{UrlConstant.ProfileChromePath}\{username}";
+            ChromeSelenium chrome = new ChromeSelenium(userProfilePath, VarConstant.IsShowBrowser);
+
+            bool isFinish = true;
+
+            foreach (var cus in interact.Detail)
             {
-                ChromeOptions options = new ChromeOptions();
-                options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
-                
-                IWebDriver driver = new ChromeDriver(options);
-                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-                driver.Url = $"{UrlConstant.FbLogin}/profile.php?id={uid}";
-                if (!isShowChrome)
-                    options.AddArgument("--headless");
-                driver.Navigate();
-
-                var eCancelRequestBtn = driver.FindElements(By.CssSelector(SelectorConstant.CancelRequestFriendBtn));
-
-                if (eCancelRequestBtn.Count == 0)
-                {
-                    var eAddFriendBtn = driver.FindElements(By.CssSelector(SelectorConstant.AddFriendBtn));
-                    if (eAddFriendBtn.Count > 0)
-                    {
-                        eAddFriendBtn[0].Click();
-                        result = 2;
-                    }
-                    else
-                        result = 10;
-                        
-                }
-                else
-                    result = 2;
-                driver.Quit();
+                if (cus.Status == (int) ActionConstant.Status.Waiting || cus.Status == (int)ActionConstant.Status.Fail)
+                    cus.Status = chrome.AddFriendFb(cus.Uid);
+                if (cus.Status == (int)ActionConstant.Status.Fail)
+                    isFinish = false;
+                Thread.Sleep(interact.TimeDelay);
             }
-            catch
-            {
-                 result = 3;
-            }
-            return result;
-
+            if (isFinish)
+                interact.Status = ProcessStatusConstant.FINISH;
+            
+            chrome.Quit();
         }
 
-        public int SendMessage(AccountFacebookView acc, string uid, string content, string image, bool isShowChrome = false)
+        public void SendMessages(InteractFacebookView interact, string username)
         {
-            try
-            {
-                if (_driver is null)
-                {
-                    ChromeOptions options = new ChromeOptions();
-                    options.AddArgument($@"{UrlConstant.ProfileChromePath}\{acc.Username}");
+            if (interact == null || interact.Action != ActionConstant.SENDMESSAGE ||
+                interact.Status == ProcessStatusConstant.FINISH || interact.Status == ProcessStatusConstant.STOP ||
+                interact.Schedule.Date != DateTime.Now.Date)
+                return;
 
-                    _driver = new ChromeDriver(options);
-                    _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-                }
-                _driver.Url = $"{UrlConstant.FbLogin}/messages/t/{uid}";
-                _driver.Navigate();
+            interact.Status = ProcessStatusConstant.PROCESSING;
 
-                var eMessageInp = _driver.FindElements(By.CssSelector(SelectorConstant.MessageInp));
-                if (eMessageInp.Count > 0)
-                {
-                    eMessageInp[0].SendKeys(content);
-                    _driver.FindElement(By.XPath(SelectorConstant.ImageInp)).SendKeys(image);
-                    _driver.FindElement(By.CssSelector(SelectorConstant.SendMessageBtn)).Click();
-                    return 2;
-                }
-                return 10;
-            }   
-            catch (Exception ex)
+            string userProfilePath = $@"{UrlConstant.ProfileChromePath}\{username}";
+            ChromeSelenium chrome = new ChromeSelenium(userProfilePath, VarConstant.IsShowBrowser);
+
+            bool isFinish = true;
+
+            foreach (var cus in interact.Detail)
             {
-                return 3;
+                if (cus.Status == (int)ActionConstant.Status.Waiting || cus.Status == (int)ActionConstant.Status.Fail)
+                    cus.Status = chrome.SendMessageFb(cus.Uid, interact.Content, interact.Image);
+                if (cus.Status == (int)ActionConstant.Status.Fail)
+                    isFinish = false;
+                Thread.Sleep(interact.TimeDelay);
             }
+            if (isFinish)
+                interact.Status = ProcessStatusConstant.FINISH;
+
+            chrome.Quit();
+        }
+
+        public void CommentProfile(InteractFacebookView interact, string username)
+        {
+            if (interact == null || interact.Action != ActionConstant.COMMENT ||
+                interact.Status == ProcessStatusConstant.FINISH || interact.Status == ProcessStatusConstant.STOP ||
+                interact.Schedule.Date != DateTime.Now.Date)
+                return;
+
+            interact.Status = ProcessStatusConstant.PROCESSING;
+
+            string userProfilePath = $@"{UrlConstant.ProfileChromePath}\{username}";
+            ChromeSelenium chrome = new ChromeSelenium(userProfilePath, VarConstant.IsShowBrowser);
+
+            bool isFinish = true;
+
+            foreach (var cus in interact.Detail)
+            {
+                if (cus.Status == (int)ActionConstant.Status.Waiting || cus.Status == (int)ActionConstant.Status.Fail)
+                    cus.Status = chrome.CommentProfileFb(cus.Uid, interact.Content, interact.Image, interact.CountPost);
+                if (cus.Status == (int)ActionConstant.Status.Fail)
+                    isFinish = false;
+                Thread.Sleep(interact.TimeDelay);
+            }
+            if (isFinish)
+                interact.Status = ProcessStatusConstant.FINISH;
+
+            //chrome.Quit();
         }
     }
 }

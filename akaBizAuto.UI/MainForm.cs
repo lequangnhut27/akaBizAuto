@@ -20,15 +20,14 @@ namespace akaBizAuto.UI
     {
         private readonly IAccountFacebookService _accFbService;
         private List<AccountFacebookView> _accFbs = null;
-        private List<InteractFacebookView> _interact = null;
-        private bool _isShowChrome;
+        private List<InteractFacebookView> _interacts = null;
+
         public MainForm(IAccountFacebookService accFbService)
         {
             InitializeComponent();
             _accFbService = accFbService;
             _accFbs = AccountFacebookData.GetAccFbs();
-            _interact = AccountFacebookData.GetInteracts();
-            _isShowChrome = true;
+            _interacts = AccountFacebookData.GetInteracts();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -36,7 +35,7 @@ namespace akaBizAuto.UI
             try
             {
                 LoadStatusAccount();
-                //_accFbService.OpenFacebook(_accFbs[2]);
+                //_accFbService.OpenFacebook(_accFbs[1]);
             }
             catch (Exception ex)
             {
@@ -50,14 +49,7 @@ namespace akaBizAuto.UI
             accListFlp.Controls.Clear();
             foreach (var acc in _accFbs)
             {
-                if (_accFbService.IsLoggedIn(acc, _isShowChrome))
-                {
-                    acc.LoginStatus = VarConstant.Status.Loggedin;
-                }
-                else
-                {
-                    acc.LoginStatus = VarConstant.Status.NotLogin;
-                }
+                _accFbService.UpdateLoginStatus(acc);
                 LinkLabel link = new LinkLabel();
                 link.Width = accListFlp.Width;
                 link.Links.Add(0, 0, acc);
@@ -74,7 +66,7 @@ namespace akaBizAuto.UI
                 LinkLabel linkLabel = sender as LinkLabel;
                 AccountFacebookView acc = linkLabel.Links[0].LinkData as AccountFacebookView;
 
-                if (acc.LoginStatus == VarConstant.Status.NotLogin)
+                if (acc.LoginStatus == LoginStatusConstant.NOTLOGIN)
                 {
                     LoginFbForm loginFbForm = new LoginFbForm(_accFbService, acc);
                     var result = loginFbForm.ShowDialog();
@@ -83,6 +75,8 @@ namespace akaBizAuto.UI
                         linkLabel.Text = $"{acc.Username} ({acc.LoginStatus})";
                     }
                 }
+                else if (acc.LoginStatus == LoginStatusConstant.CHECKPOINT)
+                    _accFbService.OpenFacebook(acc);
             }
             catch (Exception ex)
             {
@@ -92,39 +86,31 @@ namespace akaBizAuto.UI
 
         private void addFriendListFbBtn_Click(object sender, EventArgs e)
         {
-            foreach (var interact in _interact)
+            foreach (var interact in _interacts)
             {
-                if (interact.Action == VarConstant.Action.AddFriend &&
-                    interact.Status == VarConstant.Status.Waiting &&
-                    interact.Schedule.Date == DateTime.Now.Date)
-                {
-                    foreach (var customer in interact.Detail)
-                    {
-                        var result = _accFbService.AddFriend(_accFbs[2], customer.Uid, _isShowChrome);
-                        customer.Status = result;
-                        Thread.Sleep(interact.TimeDelay);
-                    }
-                    interact.Status = VarConstant.Status.Finish;
-                }
+                AccountFacebookView acc = _accFbs.Find(x => x.ShopId == interact.ShopId);
+                if (acc.LoginStatus == LoginStatusConstant.LOGGEDIN)
+                    _accFbService.AddFriends(interact, acc.Username);
             }
         }
 
         private void sendMessageBtn_Click(object sender, EventArgs e)
         {
-            foreach (var interact in _interact)
+            foreach (var interact in _interacts)
             {
-                if (interact.Action == VarConstant.Action.SendMessage &&
-                    interact.Status == VarConstant.Status.Waiting &&
-                    interact.Schedule.Date == DateTime.Now.Date)
-                {
-                    foreach (var customer in interact.Detail)
-                    {
-                        var result = _accFbService.SendMessage(_accFbs[2], customer.Uid, interact.Content, interact.Image, _isShowChrome);
-                        customer.Status = result;
-                        Thread.Sleep(interact.TimeDelay);
-                    }
-                    interact.Status = VarConstant.Status.Finish;
-                }
+                AccountFacebookView acc = _accFbs.Find(x => x.ShopId == interact.ShopId);
+                if (acc.LoginStatus == LoginStatusConstant.LOGGEDIN)
+                    _accFbService.SendMessages(interact, acc.Username);
+            }
+        }
+
+        private void commentBtn_Click(object sender, EventArgs e)
+        {
+            foreach (var interact in _interacts)
+            {
+                AccountFacebookView acc = _accFbs.Find(x => x.ShopId == interact.ShopId);
+                if (acc.LoginStatus == LoginStatusConstant.LOGGEDIN)
+                    _accFbService.CommentProfile(interact, acc.Username);
             }
         }
     }

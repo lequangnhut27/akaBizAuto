@@ -7,6 +7,7 @@ namespace akaBizAuto.Service.Constants
     public static class UrlConstant
     {
         public static string FbLogin = "https://fb.com";
+        public static string FbCheckpoint = "facebook.com/checkpoint";
         public static string ProfileChromePath = @"user-data-dir=C:\Users\Nitrogen\AppData\Local\Google\Chrome\User Data";
     }
 }
