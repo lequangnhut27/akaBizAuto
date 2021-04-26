@@ -102,7 +102,7 @@ namespace akaBizAuto.Service.Common
                 {
                     eMessageInp[0].SendKeys(content);
                     _driver.FindElement(By.XPath(SelectorConstant.ImageInp)).SendKeys(imgPath);
-                    //_driver.FindElement(By.XPath(SelectorConstant.SendMessageBtn)).Click();
+                    _driver.FindElement(By.XPath(SelectorConstant.SendMessageBtn)).Click();
                     return (int)ActionConstant.Status.Success;
                 }
                 else
@@ -122,12 +122,10 @@ namespace akaBizAuto.Service.Common
             js.ExecuteScript(script);
         }
 
-        public int CommentProfileFb(string uid, string content, string imgPath, int numPost)
+        public int CommentFb(string uid, string content, string imgPath, int numPost)
         {
             try
             {
-                _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
-
                 Navigate($"{UrlConstant.FbLogin}/profile.php?id={uid}");
                 ReadOnlyCollection<IWebElement> eCommentInp = null;
                 int i;
@@ -139,25 +137,31 @@ namespace akaBizAuto.Service.Common
                         int posScroll = 1500 * (i + 1);
                         ExecuteScript($"window.scrollBy(0,{posScroll})");
                         eCommentInp[i].SendKeys(content);
-                        var eCommentImageInp = _driver.FindElements(By.CssSelector(SelectorConstant.CommentImageInp));
-                        eCommentImageInp[i].SendKeys(imgPath);
-                        _driver.FindElement(By.CssSelector(SelectorConstant.UploadedImage));
-                        eCommentInp[i].SendKeys(Keys.Enter);                        
+                        if (!String.IsNullOrEmpty(imgPath))
+                        {
+                            var eCommentImageInp = _driver.FindElements(By.CssSelector(SelectorConstant.CommentImageInp));
+                            if (eCommentImageInp.Count > 0)
+                            {
+                                _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
+                                eCommentImageInp[i].SendKeys(imgPath);
+                                _driver.FindElement(By.CssSelector(SelectorConstant.UploadedImage));
+                                _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+                            }
+                        }
+                        eCommentInp[i].SendKeys(Keys.Enter);
                     }
                     else if (i == 0)
                         return (int)ActionConstant.Status.NotPermission;
                     else
                         break;
                 }
-                _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
                 return (int)ActionConstant.Status.Success;
 
             }
             catch (Exception ex)
             {
-                _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
                 return (int)ActionConstant.Status.Fail;
             }
-        }
+        }      
     }
 }

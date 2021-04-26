@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -46,10 +47,20 @@ namespace akaBizAuto.UI
 
         private void LoadStatusAccount()
         {
+            List<Task> t = new List<Task>();
+            foreach (var acc in _accFbs)
+            {
+                t.Add(_accFbService.UpdateLoginStatus(acc));
+            }
+            Task.WaitAll(t.ToArray());
+            AddStatusAccountLlb();
+        }
+
+        private void AddStatusAccountLlb()
+        {
             accListFlp.Controls.Clear();
             foreach (var acc in _accFbs)
             {
-                _accFbService.UpdateLoginStatus(acc);
                 LinkLabel link = new LinkLabel();
                 link.Width = accListFlp.Width;
                 link.Links.Add(0, 0, acc);
@@ -86,32 +97,38 @@ namespace akaBizAuto.UI
 
         private void addFriendListFbBtn_Click(object sender, EventArgs e)
         {
+            List<Task> tasks = new List<Task>();
             foreach (var interact in _interacts)
             {
                 AccountFacebookView acc = _accFbs.Find(x => x.ShopId == interact.ShopId);
                 if (acc.LoginStatus == LoginStatusConstant.LOGGEDIN)
-                    _accFbService.AddFriends(interact, acc.Username);
+                    tasks.Add(_accFbService.AddFriends(interact, acc.Username));
             }
+            Task.WaitAll(tasks.ToArray());
         }
 
         private void sendMessageBtn_Click(object sender, EventArgs e)
         {
+            List<Task> tasks = new List<Task>();
             foreach (var interact in _interacts)
             {
                 AccountFacebookView acc = _accFbs.Find(x => x.ShopId == interact.ShopId);
                 if (acc.LoginStatus == LoginStatusConstant.LOGGEDIN)
-                    _accFbService.SendMessages(interact, acc.Username);
+                    tasks.Add(_accFbService.SendMessages(interact, acc.Username));
             }
+            Task.WaitAll(tasks.ToArray());
         }
 
         private void commentBtn_Click(object sender, EventArgs e)
         {
+            List<Task> tasks = new List<Task>();
             foreach (var interact in _interacts)
             {
                 AccountFacebookView acc = _accFbs.Find(x => x.ShopId == interact.ShopId);
-                if (acc.LoginStatus == LoginStatusConstant.LOGGEDIN)
-                    _accFbService.CommentProfile(interact, acc.Username);
+                if (acc != null && acc.LoginStatus == LoginStatusConstant.LOGGEDIN)
+                    tasks.Add(_accFbService.Comment(interact, acc.Username));
             }
+            Task.WaitAll(tasks.ToArray());
         }
     }
 }

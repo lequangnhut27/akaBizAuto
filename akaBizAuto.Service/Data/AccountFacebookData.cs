@@ -70,12 +70,27 @@ namespace akaBizAuto.Service.Data
                 Detail = GetCustomers(),
                 Schedule = DateTime.Now.Date,
                 TimeDelay = 3000,
-                CountPost = 2
+                CountPost = 2,
+                Type = TypeConstant.PROFILE
+            };
+
+            InteractFacebookView interact4 = new InteractFacebookView()
+            {
+                ShopId = 3333,
+                Status = ProcessStatusConstant.WAITING,
+                Action = ActionConstant.COMMENT,
+                Content = "Hello",
+                Image = @"C:\Users\Nitrogen\Pictures\Screenshots\Screenshot (1).png",
+                Detail = GetPages(),
+                Schedule = DateTime.Now.Date,
+                TimeDelay = 3000,
+                CountPost = 2,
+                Type = TypeConstant.PROFILE
             };
             interacts.Add(interact1);
             interacts.Add(interact2);
-            interacts.Add(interact3);
-
+            //interacts.Add(interact3);
+            interacts.Add(interact4);
             return interacts;
         }
 
@@ -110,9 +125,28 @@ namespace akaBizAuto.Service.Data
             };
             customers.Add(cus1);
             customers.Add(cus2);
-            //customers.Add(cus3);
-            //customers.Add(cus4);
+            customers.Add(cus3);
+            customers.Add(cus4);
             customers.Add(cus5);
+
+            return customers;
+        }
+
+        public static List<CustomerView> GetPages()
+        {
+            List<CustomerView> customers = new List<CustomerView>();
+            CustomerView cus1 = new CustomerView()
+            {
+                Uid = "182531825472288",
+                Status = 1
+            };
+            CustomerView cus2 = new CustomerView()
+            {
+                Uid = "100044302182296",
+                Status = 1
+            };
+            //customers.Add(cus1);
+            customers.Add(cus2);
 
             return customers;
         }
